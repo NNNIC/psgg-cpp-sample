@@ -1,0 +1,65 @@
+﻿#pragma once
+#include <string>
+using namespace std;
+
+class StateManager 
+{
+private:
+    string m_curstate;
+    string m_nextstate;
+    string m_tempstate;
+
+public:
+    StateManager() 
+    {
+        m_curstate.clear();
+        m_nextstate.clear();
+        m_tempstate.clear();
+    }
+
+public:
+    virtual ~StateManager() {}
+
+    void Update()
+    {
+        bool bFirst;
+        if (m_nextstate.size()!=0) {
+            m_curstate = m_nextstate;
+            m_nextstate.clear();
+            bFirst = true;
+        }
+        if (m_curstate.size()!=0) {
+            execute_state(m_curstate, bFirst);
+        }
+    }
+    virtual void execute_state(string& st, bool bFirst) = 0;
+
+    void Goto(const char* st) 
+    {
+        m_nextstate = st; 
+    }
+
+    bool CheckState(const char *st)
+    {
+        return m_curstate == st;
+    }
+
+    void SetNextState(const char *st)
+    {
+        m_tempstate = st;
+    }
+
+    bool HasNextState()
+    {
+        return m_tempstate.size()!=0;
+    }
+
+    void GoNextState()
+    {
+        m_nextstate = m_tempstate;
+        m_tempstate.clear();
+    }
+
+    virtual void Start() = 0;
+    virtual bool IsEnd() = 0;
+};
