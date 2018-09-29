@@ -22,34 +22,17 @@ private:
     void execute_state(string& st, bool bFirst) {
 
 
-        if (st == "S_START") { S_START(bFirst); return; }
         if (st == "S_END") { S_END(bFirst); return; }
         if (st == "S_INPUT") { S_INPUT(bFirst); return; }
-        if (st == "S_PRINT") { S_PRINT(bFirst); return; }
-        if (st == "S_YES") { S_YES(bFirst); return; }
         if (st == "S_NO") { S_NO(bFirst); return; }
+        if (st == "S_PRINT") { S_PRINT(bFirst); return; }
+        if (st == "S_START") { S_START(bFirst); return; }
+        if (st == "S_YES") { S_YES(bFirst); return; }
 
 
     }
 
 
-    /*
-        S_START
-    */
-    void S_START(bool bFirst)
-    {
-        if (bFirst)
-        {
-        }
-        if (!HasNextState())
-        {
-            SetNextState("S_PRINT");
-        }
-        if (HasNextState())
-        {
-            GoNextState();
-        }
-    }
     /*
         S_END
     */
@@ -84,6 +67,24 @@ private:
         }
     }
     /*
+        S_NO
+    */
+    void S_NO(bool bFirst)
+    {
+        if (bFirst)
+        {
+            printf("You must not be a programmer.");
+        }
+        if (!HasNextState())
+        {
+            SetNextState("S_END");
+        }
+        if (HasNextState())
+        {
+            GoNextState();
+        }
+    }
+    /*
         S_PRINT
         Print a question.
     */
@@ -103,17 +104,16 @@ private:
         }
     }
     /*
-        S_YES
+        S_START
     */
-    void S_YES(bool bFirst)
+    void S_START(bool bFirst)
     {
         if (bFirst)
         {
-            printf("We will bring you to SYN-G-GEN.");
         }
         if (!HasNextState())
         {
-            SetNextState("S_END");
+            SetNextState("S_PRINT");
         }
         if (HasNextState())
         {
@@ -121,13 +121,13 @@ private:
         }
     }
     /*
-        S_NO
+        S_YES
     */
-    void S_NO(bool bFirst)
+    void S_YES(bool bFirst)
     {
         if (bFirst)
         {
-            printf("You must not be a programmer.");
+            printf("We will bring you to SYN-G-GEN.");
         }
         if (!HasNextState())
         {

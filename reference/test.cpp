@@ -5,13 +5,13 @@
 
 using namespace std;
 
-#include "TestControl_created.hpp"
+#include "TestControl.hpp"
 
 int main()
 {
     printf("hello!\n");
 
-	StateManager *sm = static_cast<StateManager*>(new TestControl_created());
+	TestControl *sm = new TestControl;
 	sm->Start();
 
 	while(!sm->IsEnd()) {
