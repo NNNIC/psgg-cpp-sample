@@ -29,3 +29,5 @@ run.bat   - run sample
 
 ### SAMPLE
 
+![](https://raw.githubusercontent.com/NNNIC/psgg-cpp-sample/master/wiki/sample.png)
+
