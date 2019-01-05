@@ -1,15 +1,15 @@
 # psgg-cpp-sample
-SYN-G-GEN C++ Sample
+StateGo C++ Sample
 
 ## ENVIRONMENT
 
 Windows 7/8/10  
 GNU C  
-SYN-G-GEN https://syn-g-gen.com
+StateGo https://statego.programanic.com
 
 ## Playground
 
-### 1. Start SYN-G-GEN
+### 1. Start StateGo
 
 If a state machine exists, please delete it useing "clean.bat".
 
