@@ -5,7 +5,7 @@ StateGo C++ Sample
 
 Windows 7/8/10  
 GNU C  
-StateGo https://statego.programanic.com
+[StateGo](https://statego.programanic.com/index-e.html)
 
 ## Playground
 
