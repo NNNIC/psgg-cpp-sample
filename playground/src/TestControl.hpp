@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <cstdio>
 #include <string>
+#include <cstdlib>
 using namespace std;
 
 class TestControl 
@@ -9,8 +10,11 @@ class TestControl
 private:
     string m_curstate;
     string m_nextstate;
-    string m_tempstate;
     bool   m_bNoWait;
+    
+    static const int CALL_STACK_MAX = 10;
+    const char* m_callstack[CALL_STACK_MAX];
+    int m_callstack_level = 0;
 
     void update() {
         while(true) {
@@ -29,90 +33,50 @@ private:
     }
     void Goto(const char* st)        { m_nextstate = st;                                 }
     bool CheckState(const char *st)  { return m_curstate == st;                          }
-    void SetNextState(const char *st){ m_tempstate = st;                                 }
-    bool HasNextState()              { return m_tempstate.size()!=0;                     }
-    void GoNextState()               { m_nextstate = m_tempstate; m_tempstate.clear();   }
+    bool HasNextState()              { return m_nextstate.size()!=0;                     }
     void NoWait()                    { m_bNoWait = true;                                 }
+    void GoSubState(const char *sb, const char *nt)
+    {
+        if (m_callstack_level >= CALL_STACK_MAX - 1)
+        {
+            printf("CALL STACK OVER FLOW\n");
+            exit(1);
+        }
+        m_callstack[m_callstack_level++] = nt;
+        Goto(sb);
+    }
+    void ReturnState()
+    {
+        if (m_callstack_level <= 0)
+        {
+            printf("CALL STACK UNDER FLOW\n");
+        }
+        m_callstack_level--;
+        const char *st = m_callstack[m_callstack_level];
+        Goto(st);
+    }
     //endregion manager
 
     //  Embed codes                              [SYN-G-GEN OUTPUT START] indent(4) $/^E_/$
-//  psggConverterLib.dll converted from TestControl.xlsx. 
+//  psggConverterLib.dll converted from TestControl.xlsx.    psgg-file:TestControl.psgg
 
 
     //                                           [SYN-G-GEN OUTPUT END]
 
     //  states                                   [SYN-G-GEN OUTPUT START] indent(4) $/^S_/$
-//  psggConverterLib.dll converted from TestControl.xlsx. 
+//  psggConverterLib.dll converted from TestControl.xlsx.    psgg-file:TestControl.psgg
     /*
         S_0001
     */
     void S_0001(bool bFirst)
     {
-        int a = 3;
         if (bFirst)
         {
-            printf("Hello World!\n");
-        }
-        if (a == 1) { SetNextState( "S_0002" ); }
-        else if (a==2) { SetNextState( "S_0004" ); }
-        else { SetNextState( "S_0003" ); }
-        if (HasNextState())
-        {
-            GoNextState();
-        }
-    }
-    /*
-        S_0002
-    */
-    void S_0002(bool bFirst)
-    {
-        if (bFirst)
-        {
-            printf("S_0002\n");
+            printf("A state-machine is running\n");
         }
         if (!HasNextState())
         {
-            SetNextState("S_END");
-        }
-        if (HasNextState())
-        {
-            GoNextState();
-        }
-    }
-    /*
-        S_0003
-    */
-    void S_0003(bool bFirst)
-    {
-        if (bFirst)
-        {
-            printf("S_0003\n");
-        }
-        if (!HasNextState())
-        {
-            SetNextState("S_END");
-        }
-        if (HasNextState())
-        {
-            GoNextState();
-        }
-    }
-    /*
-        S_0004
-    */
-    void S_0004(bool bFirst)
-    {
-        if (bFirst)
-        {
-            printf("S_0004\n");
-        }
-        if (!HasNextState())
-        {
-            SetNextState("S_END");
-        }
-        if (HasNextState())
-        {
-            GoNextState();
+            Goto("S_GOSUB");
         }
     }
     /*
@@ -120,9 +84,71 @@ private:
     */
     void S_END(bool bFirst)
     {
-        if (HasNextState())
+    }
+    /*
+        S_EVEN_OR_ODD
+    */
+    void S_EVEN_OR_ODD(bool bFirst)
+    {
+        if (m_i % 2 == 0) { Goto( "S_PRINT_EVEN" ); }
+        else { Goto( "S_PRINT_ODD" ); }
+    }
+    /*
+        S_GOSUB
+    */
+    void S_GOSUB(bool bFirst)
+    {
+        GoSubState("S_SUBSTART1","S_LOOP");
+        NoWait();
+    }
+    /*
+        S_LOOP
+    */
+    int m_i;
+    void S_LOOP(bool bFirst)
+    {
+        m_i=0;
+        Goto("S_LOOP_LoopCheckAndGosub____");
+        NoWait();
+    }
+    void S_LOOP_LoopCheckAndGosub____(bool bFirst)
+    {
+        if (m_i < 10) GoSubState("S_SUBSTART","S_LOOP_LoopNext____");
+        else               Goto("S_END");
+        NoWait();
+    }
+    void S_LOOP_LoopNext____(bool bFirst)
+    {
+        m_i++;
+        Goto("S_LOOP_LoopCheckAndGosub____");
+        NoWait();
+    }
+    /*
+        S_PRINT_EVEN
+    */
+    void S_PRINT_EVEN(bool bFirst)
+    {
+        if (bFirst)
         {
-            GoNextState();
+            printf("Count : %d (EVEN)\n",m_i);
+        }
+        if (!HasNextState())
+        {
+            Goto("S_SUBRETURN");
+        }
+    }
+    /*
+        S_PRINT_ODD
+    */
+    void S_PRINT_ODD(bool bFirst)
+    {
+        if (bFirst)
+        {
+            printf("Count : %d (ODD)\n",m_i);
+        }
+        if (!HasNextState())
+        {
+            Goto("S_SUBRETURN");
         }
     }
     /*
@@ -132,11 +158,53 @@ private:
     {
         if (!HasNextState())
         {
-            SetNextState("S_0001");
+            Goto("S_0001");
         }
-        if (HasNextState())
+    }
+    /*
+        S_SUBRETURN
+    */
+    void S_SUBRETURN(bool bFirst)
+    {
+        ReturnState();
+        NoWait();
+    }
+    /*
+        S_SUBRETURN1
+    */
+    void S_SUBRETURN1(bool bFirst)
+    {
+        ReturnState();
+        NoWait();
+    }
+    /*
+        S_SUBSTART
+    */
+    void S_SUBSTART(bool bFirst)
+    {
+        Goto("S_EVEN_OR_ODD");
+        NoWait();
+    }
+    /*
+        S_SUBSTART1
+    */
+    void S_SUBSTART1(bool bFirst)
+    {
+        Goto("S_WORK");
+        NoWait();
+    }
+    /*
+        S_WORK
+    */
+    void S_WORK(bool bFirst)
+    {
+        if (bFirst)
         {
-            GoNextState();
+            printf("A subroutine is running.\n");
+        }
+        if (!HasNextState())
+        {
+            Goto("S_SUBRETURN1");
         }
     }
 
@@ -146,40 +214,29 @@ private:
 	void execute_state(string &st, bool bFirst)
     {
         //                                       [SYN-G-GEN OUTPUT START] indent(8) $/^S_/->#execute_state$
-//  psggConverterLib.dll converted from TestControl.xlsx. 
+//  psggConverterLib.dll converted from TestControl.xlsx.    psgg-file:TestControl.psgg
         if (st == "S_0001") { S_0001(bFirst); return; }
-        if (st == "S_0002") { S_0002(bFirst); return; }
-        if (st == "S_0003") { S_0003(bFirst); return; }
-        if (st == "S_0004") { S_0004(bFirst); return; }
         if (st == "S_END") { S_END(bFirst); return; }
+        if (st == "S_EVEN_OR_ODD") { S_EVEN_OR_ODD(bFirst); return; }
+        if (st == "S_GOSUB") { S_GOSUB(bFirst); return; }
+        if (st == "S_LOOP") { S_LOOP(bFirst); return; }
+        if (st == "S_LOOP_LoopCheckAndGosub____") { S_LOOP_LoopCheckAndGosub____(bFirst); return; }
+        if (st == "S_LOOP_LoopNext____")          { S_LOOP_LoopNext____(bFirst); return; }
+        if (st == "S_PRINT_EVEN") { S_PRINT_EVEN(bFirst); return; }
+        if (st == "S_PRINT_ODD") { S_PRINT_ODD(bFirst); return; }
         if (st == "S_START") { S_START(bFirst); return; }
+        if (st == "S_SUBRETURN") { S_SUBRETURN(bFirst); return; }
+        if (st == "S_SUBRETURN1") { S_SUBRETURN1(bFirst); return; }
+        if (st == "S_SUBSTART") { S_SUBSTART(bFirst); return; }
+        if (st == "S_SUBSTART1") { S_SUBSTART1(bFirst); return; }
+        if (st == "S_WORK") { S_WORK(bFirst); return; }
 
 
         //                                       [SYN-G-GEN OUTPUT END]
     }
 
     // write your code here!
-    bool m_bYesNo;
-    void br_YES(const char *st)
-    {
-        if (!HasNextState())
-        {
-            if (m_bYesNo)
-            {
-                SetNextState(st);
-            }
-        }
-    }
-    void br_NO(const char *st)
-    {
-        if (!HasNextState())
-        {
-            if (!m_bYesNo)
-            {
-                SetNextState(st);
-            }
-        }
-    }
+
 public:
     void Start()  { Goto("S_START");            }
     bool IsEnd()  { return CheckState("S_END"); }
